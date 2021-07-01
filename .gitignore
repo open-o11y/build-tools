@@ -17,3 +17,6 @@
 
 # Vim
 .swp
+
+# Go module releasing binary
+go/tools/releasing/releasing
