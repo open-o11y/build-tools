@@ -264,8 +264,7 @@ func (p prerelease) commitChanges(skipMake bool) error {
 		fmt.Println("WARNING: could not automatically get last commit hash.")
 	}
 
-	fmt.Println("Commit successful. Hash of commit:")
-	os.Stdout.Write(output)
+	fmt.Printf("Commit successful. Hash of commit: %s\n", output)
 
 	return nil
 }
