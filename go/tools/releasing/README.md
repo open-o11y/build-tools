@@ -44,7 +44,7 @@ is within the target repo, verify that the versioning is correct by running the 
     * `verifyAllModulesInSet` checks that every module (as defined by a `go.mod` file) is contained in exactly
       one module set.
     * `verifyVersions` checks that module set version conform to semver semantics and checks that no more than
-      one module exists for any given non-zero major version.
+      one module set exists for any given non-zero major version.
     * `verifyDependencies` checks if any stable modules depend on unstable modules.
         * The stability of a given module is defined by its version in the `version.yaml` file (`v1` and above
           is stable, `v0` is unstable).
@@ -68,7 +68,7 @@ Update `go.mod` for all modules to depend on the specified module set's new rele
           If unspecified will default to (RepoRoot)/versions.yaml.
         * **from-existing-branch (optional):** Name of existing branch from which to base the pre-release branch.
           If unspecified, defaults to current branch.
-        * **skip-make (boolean flag):** Specify this flag to skip the 'make lint' ** and 'make ci' steps.
+        * **skip-make (boolean flag):** Specify this flag to skip the 'make lint' and 'make ci' steps.
           To be used for debugging purposes. Should not be skipped during actual release.
 
 2. Verify the changes.
@@ -88,10 +88,12 @@ Update `go.mod` for all modules to depend on the specified module set's new rele
 
 Once the Pull Request with all the version changes has been approved and merged, it is time to tag the merged commit.
 
-First, ensure that you have checked out the branch created in the `prerelease` step: 
-`pre_release_<module set name>_<new version>`. 
+Make sure that you have pulled all changes from the upstream remote so that the commit will be found 
+in your currently checked out branch.
 
 1. Run the tag subcommand using the `<commit-hash>` of the commit on the main branch for the merged Pull Request.
+In other words, once a Pull Request has been merged, the commit hash of the single commit containing all 
+   merged pre-release changes should be used.
 The tag can be given as its abbreviation, in which case the script will attempt to find and print the full SHA1 hash.
 
     ```
@@ -99,16 +101,18 @@ The tag can be given as its abbreviation, in which case the script will attempt 
     ```
 
 2. Push tags for ALL updated modules to the upstream remote (not your fork), which are printed by the `tag` script. 
-This step must be done manually.
+This step must be done manually, specifying one tag at a time to push.
 
     ```
-    git push upstream <new tag>
-    git push upstream <new tag>
+    git push upstream <new tag 1>
+    git push upstream <new tag 2>
     ...
     ```
    
-If you need to undo the tagging of a module set (i.e. you need to delete a module set's tags for the
-version specified in `versions.yaml`), you can run the following command.
+In the case that you made a mistake in creating Git Tags (e.g. you used the wrong commit hash),
+you can run the following command to delete all of a specified module set's tags for the
+version specified in `versions.yaml`. 
+This command will not allow you to delete tags that already exist in the upstream remote.
 
 ```
 ./releasing tag --module-set-name <name> --delete-module-set-tags
