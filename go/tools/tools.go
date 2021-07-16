@@ -262,6 +262,9 @@ func modulePathsToFilePaths(modPaths []ModulePath, modPathMap ModulePathMap) ([]
 	var modFilePaths []ModuleFilePath
 
 	for _, modPath := range modPaths {
+		if _, exists := modPathMap[modPath]; !exists {
+			return []ModuleFilePath{}, fmt.Errorf("could not find module path %v in path map.", modPath)
+		}
 		modFilePaths = append(modFilePaths, modPathMap[modPath])
 	}
 
@@ -271,12 +274,15 @@ func modulePathsToFilePaths(modPaths []ModulePath, modPathMap ModulePathMap) ([]
 // moduleFilePathToTagName returns the module tag names of an input ModuleFilePath
 // by removing the repoRoot prefix from the ModuleFilePath.
 func moduleFilePathToTagName(modFilePath ModuleFilePath, repoRoot string) (ModuleTagName, error) {
+	if !strings.HasPrefix(string(modFilePath), repoRoot+"/") {
+		return "", fmt.Errorf("modFilePath %v not contained in repo with root %v", modFilePath, repoRoot)
+	}
+	if !strings.HasSuffix(string(modFilePath), "go.mod") {
+		return "", fmt.Errorf("modFilePath %v does not end with 'go.mod'", modFilePath)
+	}
+
 	modTagNameWithGoMod := strings.TrimPrefix(string(modFilePath), repoRoot+"/")
 	modTagName := strings.TrimSuffix(modTagNameWithGoMod, "/go.mod")
-
-	if modTagName == string(modFilePath) {
-		return "", fmt.Errorf("modFilePath %v could not be found in the repo root %v", modFilePath, repoRoot)
-	}
 
 	// if the modTagName is equal to go.mod, it is the root repo
 	if modTagName == "go.mod" {
@@ -342,7 +348,7 @@ func FindRepoRoot() (string, error) {
 func ChangeToRepoRoot() (string, error) {
 	repoRoot, err := FindRepoRoot()
 	if err != nil {
-		return "", fmt.Errorf("unable to change to repo root: %v", err)
+		return "", fmt.Errorf("unable to find repo root: %v", err)
 	}
 
 	fmt.Println("Changing to root directory...")
