@@ -8,7 +8,3 @@ require (
 	github.com/spf13/viper v1.8.0
 	golang.org/x/mod v0.4.2
 )
-
-replace go.opentelemetry.io/tools => ./
-
-replace go.opentelemetry.io/tools/releasing/cmd => ./releasing/cmd
