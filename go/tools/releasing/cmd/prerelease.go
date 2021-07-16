@@ -119,7 +119,7 @@ func init() {
 	)
 }
 
-func getDefaultFromExistingBranch() (string, error){
+func getDefaultFromExistingBranch() (string, error) {
 	// get current branch
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
 	output, err := cmd.Output()
