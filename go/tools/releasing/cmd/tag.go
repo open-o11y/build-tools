@@ -123,6 +123,9 @@ func getFullCommitHash(hash string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("could not retrieve commit hash %v: %v", hash, err)
 	}
+	if output == nil || len(output) == 0 {
+		return "", fmt.Errorf("commit hash not found with 'git rev-parse --quiet --verify %v'", hash)
+	}
 
 	SHA := strings.TrimSpace(string(output))
 
@@ -133,8 +136,7 @@ func getFullCommitHash(hash string) (string, error) {
 		return "", fmt.Errorf("command 'git merge-base %v HEAD' failed: %v", SHA, err)
 	}
 	if strings.TrimSpace(string(output)) != SHA {
-		return "", fmt.Errorf("commit %v (complete SHA: %v) not found on this branch "+
-			"or not the most recent commit", hash, SHA)
+		return "", fmt.Errorf("commit %v (complete SHA: %v) not found on this branch", hash, SHA)
 	}
 
 	return SHA, nil
