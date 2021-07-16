@@ -17,13 +17,9 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"go.opentelemetry.io/tools"
 )
 
@@ -48,7 +44,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize()
 
 	repoRoot, err := tools.FindRepoRoot()
 	if err != nil {
@@ -65,27 +61,4 @@ func init() {
 		"Name of module set whose version is being changed. Must be listed in the module set versioning YAML.",
 	)
 	rootCmd.MarkPersistentFlagRequired("module-set-name")
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".releasing" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".releasing")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
 }
